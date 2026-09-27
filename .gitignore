@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Secrets & credentials
+.env
+.env.*
+!.env.example
+credentials.json
+service-account*.json
+
+# Scraper output (generated, not source)
+output/*
+!output/.gitkeep
+logs/
+.pytest_cache/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data kontak internal (berisi data pribadi)
+*.xlsx

@@ -1,0 +1,70 @@
+name: Scrape Data Bisnis
+
+on:
+  workflow_dispatch:
+    inputs:
+      keyword:
+        description: "Keyword pencarian (mis. salon)"
+        required: true
+        type: string
+      area:
+        description: "Area pencarian (mis. Jakarta Selatan)"
+        required: true
+        type: string
+      max_results:
+        description: "Jumlah maksimum hasil (1-60)"
+        required: false
+        type: string
+        default: "20"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scrape-restoran
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KEYWORD: ${{ inputs.keyword }}
+      AREA: ${{ inputs.area }}
+      MAX_RESULTS: ${{ inputs.max_results }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        run: |
+          python -m scraper.main \
+            --keyword "$KEYWORD" \
+            --area "$AREA" \
+            --max-results "$MAX_RESULTS"
+
+      - name: Upload hasil sebagai artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hasil-scraping
+          path: output/
+          retention-days: 7
+          if-no-files-found: error
+
+      - name: Upload log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scraper-log
+          path: logs/
+          retention-days: 7
+          if-no-files-found: ignore
